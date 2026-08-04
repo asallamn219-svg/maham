@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>إدارة المهام - منبه متقدم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            /* ... نفس أكواد الـ CSS القديمة ... */
+            --bg: #f0f4f8;
+            --surface: rgba(255,255,255,0.75);
+            --card-bg: rgba(255,255,255,0.9);
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --primary: #3b82f6;
+            --primary-light: #e0e7ff;
+            --border: rgba(255,255,255,0.8);
+            --shadow: 0 20px 30px rgba(0,0,0,0.05);
+            --hover: #e2e8f0;
+            --note-bg: #eef2ff;
+            --note-color: #4338ca;
+            --today-bg: #3b82f6;
+            --today-text: #fff;
+            --selected-bg: #0f172a;
+            --selected-text: #fff;
+            --row-bg: #ffffff;
+            --selected-row-bg: #f0f9ff;
+            --selected-row-border: #3b82f6;
+            --alert-bg: #fef3c7;
+            --alert-color: #b45309;
+            --muted-bg: #f1f5f9;
+            --muted-color: #94a3b8;
+            --custom-tone-bg: #fef9c3;
+            --custom-tone-color: #854d0e;
+            --edit-btn-bg: #e2e8f0;
+            --edit-btn-color: #1e293b;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --repeat-bg: #ede9fe;
+            --repeat-color: #7c3aed;
+        }
+
+        .dark-mode {
+            --bg: #0f172a;
+            --surface: rgba(30,41,59,0.8);
+            --card-bg: rgba(30,41,59,0.9);
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --primary: #60a5fa;
+            --primary-light: #1e3a8a;
+            --border: rgba(255,255,255,0.12);
+            --shadow: 0 20px 35px rgba(0,0,0,0.5);
+            --hover: #334155;
+            --note-bg: #312e81;
+            --note-color: #c7d2fe;
+            --today-bg: #3b82f6;
+            --today-text: #fff;
+            --selected-bg: #f1f5f9;
+            --selected-text: #0f172a;
+            --row-bg: #1e293b;
+            --selected-row-bg: #1e3a5f;
+            --selected-row-border: #60a5fa;
+            --alert-bg: #78350f;
+            --alert-color: #fde68a;
+            --muted-bg: #1e293b;
+            --muted-color: #64748b;
+            --custom-tone-bg: #713f12;
+            --custom-tone-color: #fef08a;
+            --edit-btn-bg: #334155;
+            --edit-btn-color: #e2e8f0;
+            --danger: #f87171;
+            --danger-light: #7f1d1d;
+            --success: #34d399;
+            --success-light: #064e3b;
+            --repeat-bg: #4c1d95;
+            --repeat-color: #c4b5fd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 14px;
+            transition: background 0.3s;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            height: 96vh;
+            max-height: 900px;
+            background: var(--surface);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 34px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+        .app-header {
+            padding: 14px 18px 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .app-header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-header h1 i { color: var(--primary); background: var(--primary-light); padding: 7px; border-radius: 50%; font-size: 1.2rem; }
+        .header-btns { display: flex; gap: 6px; }
+        .theme-btn, .sleep-settings-btn {
+            width: 38px; height: 38px; border-radius: 50%; background: var(--row-bg);
+            border: none; font-size: 1.2rem; cursor: pointer; color: var(--text);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;
+        }
+        .sleep-active-indicator {
+            width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+            position: absolute; top: 2px; right: 2px; display: none;
+        }
+        .sleep-settings-btn { position: relative; }
+        .alert-bar {
+            background: var(--alert-bg); color: var(--alert-color); padding: 8px 14px;
+            margin: 0 14px 4px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+            display: none; align-items: center; gap: 6px;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+        .alert-bar.show { display: flex; }
+        @keyframes pulse {
+            0%,100%{transform:scale(1);}
+            50%{transform:scale(1.05);box-shadow:0 0 8px var(--alert-color);}
+        }
+        .mini-calendar {
+            background: var(--card-bg); margin: 8px 14px 6px; border-radius: 24px;
+            padding: 10px 12px; box-shadow: 0 6px 14px rgba(0,0,0,0.03); border: 1px solid var(--border);
+        }
+        .month-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .month-title { font-weight:700; font-size:0.85rem; background:var(--primary-light); padding:3px 14px; border-radius:16px; color:var(--primary); }
+        .nav-icon { background:transparent; border:none; color:var(--text-secondary); font-size:1rem; padding:4px 8px; border-radius:10px; cursor:pointer; }
+        .nav-icon:hover { background:var(--hover); }
+        .weekdays-mini { display:grid; grid-template-columns:repeat(7,1fr); font-size:0.6rem; font-weight:600; color:var(--text-secondary); text-align:center; margin-bottom:2px; }
+        .days-mini { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; text-align:center; }
+        .day-mini { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:600; border-radius:50%; cursor:pointer; color:var(--text); position:relative; }
+        .day-mini:hover { background:var(--hover); }
+        .day-mini.empty { pointer-events:none; color:transparent; }
+        .day-mini.today { background:var(--today-bg); color:var(--today-text); }
+        .day-mini.selected { background:var(--selected-bg); color:var(--selected-text); }
+        .day-mini.has-alert::after { content:''; position:absolute; bottom:2px; width:5px; height:5px; background:#f59e0b; border-radius:50%; }
+        .list-container {
+            flex:1; margin:6px 14px 14px; background:var(--card-bg); border-radius:28px;
+            padding:10px 8px; display:flex; flex-direction:column; overflow:hidden;
+            box-shadow:0 6px 14px rgba(0,0,0,0.03); border:1px solid var(--border);
+        }
+        .list-header { display:flex; justify-content:space-between; align-items:center; padding:0 6px 8px; font-weight:700; font-size:0.85rem; color:var(--text); border-bottom:1px solid var(--border); margin-bottom:6px; }
+        .scrollable-list { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:5px; padding-left:2px; scroll-behavior:smooth; }
+        .day-row {
+            background:var(--row-bg); border-radius:18px; padding:8px 10px;
+            display:flex; align-items:center; gap:8px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.02); border:1px solid var(--border);
+            transition:0.15s; cursor:pointer;
+        }
+        .day-row:hover { background:var(--hover); }
+        .day-row.today-row { border-color:var(--primary); }
+        .day-row.selected-row { background:var(--selected-row-bg); border-color:var(--selected-row-border); box-shadow:0 0 0 1px var(--selected-row-border); }
+        .day-badge { background:var(--primary-light); color:var(--primary); font-weight:700; padding:4px 10px; border-radius:16px; font-size:0.75rem; white-space:nowrap; display:flex; align-items:center; gap:4px; min-width:70px; justify-content:center; }
+        .notes-inline { flex:1; display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
+        .note-pill {
+            font-size:0.65rem; font-weight:600; padding:2px 8px; border-radius:14px;
+            display:flex; align-items:center; gap:3px; max-width:150px;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            background:var(--note-bg); color:var(--note-color); cursor:pointer; position:relative;
+        }
+        .note-pill.alerted { background:var(--alert-bg); color:var(--alert-color); animation:pulse 0.8s ease-in-out 3; }
+        .note-pill.muted { background:var(--muted-bg); color:var(--muted-color); text-decoration:line-through; opacity:0.7; }
+        .note-pill.has-custom-tone { border:1px solid var(--custom-tone-color); box-shadow:0 0 4px rgba(245,158,11,0.4); }
+        .note-pill.repeating { background:var(--repeat-bg); color:var(--repeat-color); }
+        .bell-icon, .edit-icon { cursor:pointer; font-size:0.7rem; transition:0.2s; }
+        .edit-icon:hover { transform:scale(1.3); color:var(--primary); }
+        .day-edit-pen {
+            background:var(--edit-btn-bg); color:var(--edit-btn-color);
+            width:30px; height:30px; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; cursor:pointer;
+            font-size:0.85rem; transition:0.2s; flex-shrink:0; border:none;
+        }
+        .day-edit-pen:hover { background:var(--primary); color:white; transform:scale(1.1); }
+        .add-day-btn { background:var(--primary); color:white; border:none; width:28px; height:28px; border-radius:50%; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(59,130,246,0.3); flex-shrink:0; }
+        .empty-note { color:var(--text-secondary); font-size:0.7rem; }
+
+        /* ===== المودالات ===== */
+        .modal-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); backdrop-filter:blur(5px);
+            display:none; justify-content:center; align-items:center; z-index:1000;
+        }
+        .modal {
+            background:var(--row-bg); border-radius:24px; padding:18px;
+            width:92%; max-width:420px; max-height:85vh; overflow-y:auto;
+            box-shadow:0 30px 50px rgba(0,0,0,0.4); display:flex;
+            flex-direction:column; gap:10px; color:var(--text);
+        }
+        .modal h4 { margin:0; font-size:1rem; display:flex; align-items:center; gap:6px; }
+        .modal input, .modal textarea, .modal select {
+            font-family:'Cairo',sans-serif; padding:10px; border-radius:16px;
+            border:1px solid var(--border); background:var(--surface);
+            color:var(--text); font-size:0.85rem; outline:none;
+        }
+        .modal-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+        .btn { padding:7px 16px; border-radius:20px; font-weight:600; border:none; cursor:pointer; font-size:0.8rem; transition:0.2s; }
+        .btn-save { background:var(--primary); color:white; }
+        .btn-cancel { background:var(--hover); color:var(--text); }
+        .btn-tone { background:var(--custom-tone-bg); color:var(--custom-tone-color); display:flex; align-items:center; gap:4px; }
+        .btn-danger { background:var(--danger-light); color:var(--danger); }
+        .tone-name { font-size:0.65rem; color:var(--text-secondary); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+        /* تبديل نوع التكرار */
+        .repeat-toggle-row {
+            display:flex; align-items:center; gap:8px; background:var(--surface);
+            padding:6px 10px; border-radius:16px; border:1px solid var(--border);
+        }
+        .repeat-toggle-row label { font-size:0.8rem; font-weight:600; cursor:pointer; }
+        .toggle-switch { position:relative; width:44px; height:24px; flex-shrink:0; }
+        .toggle-switch input { opacity:0; width:0; height:0; }
+        .toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:var(--hover); border-radius:24px; transition:0.3s; }
+        .toggle-slider::before { content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; }
+        .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+        .repeat-options { display:flex; flex-direction:column; gap:8px; padding:4px 0; }
+        .repeat-options label { font-size:0.75rem; font-weight:600; color:var(--text-secondary); }
+        .weekday-selector { display:flex; gap:2px; flex-wrap:wrap; }
+        .weekday-chip {
+            width:32px; height:32px; border-radius:50%; border:1px solid var(--border);
+            background:var(--surface); color:var(--text-secondary); font-size:0.65rem;
+            font-weight:600; cursor:pointer; display:flex; align-items:center;
+            justify-content:center; transition:0.2s;
+        }
+        .weekday-chip.selected { background:var(--primary); color:white; border-color:var(--primary); }
+        .weekday-chip:hover { border-color:var(--primary); }
+
+        .day-notes-list { display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto; }
+        .day-note-item { display:flex; align-items:center; gap:8px; background:var(--surface); border-radius:14px; padding:8px 10px; border:1px solid var(--border); }
+        .day-note-info { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+        .day-note-time { font-size:0.7rem; font-weight:700; color:var(--primary); }
+        .day-note-text { font-size:0.75rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .day-note-meta { font-size:0.6rem; color:var(--text-secondary); }
+        .day-note-actions { display:flex; gap:6px; flex-shrink:0; }
+        .icon-btn { width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.75rem; transition:0.2s; }
+        .icon-btn.edit-btn { background:var(--primary-light); color:var(--primary); }
+        .icon-btn.edit-btn:hover { background:var(--primary); color:white; }
+        .icon-btn.delete-btn { background:var(--danger-light); color:var(--danger); }
+        .icon-btn.delete-btn:hover { background:var(--danger); color:white; }
+        .no-notes-msg { text-align:center; color:var(--text-secondary); font-size:0.8rem; padding:12px; }
+        #ringtoneFileInput { display:none; }
+        hr { border:none; border-top:1px solid var(--border); margin:4px 0; }
+
+        /* sleep indicator */
+        .sleep-active-indicator.show { display:block; }
+        .sleep-badge {
+            font-size:0.6rem; background:var(--success-light); color:var(--success);
+            padding:1px 6px; border-radius:8px; margin-right:4px;
+        }
+    </style>
+
+    <!-- ========================================================== -->
+    <!-- (التعديل الجديد) ضفت السطرين التاليين هنا لربط ملفات الـ PWA -->
+    <!-- ========================================================== -->
+    <link rel="manifest" href="/Al-maham/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/Al-maham/service-worker.js');
+            });
+        }
+    </script>
+    <!-- ========================================================== -->
+</head>
+<body>
+<div class="app-container">
+    <div class="app-header">
+        <h1><i class="fas fa-tasks"></i> إدارة المهام</h1>
+        <div class="header-btns">
+            <button class="sleep-settings-btn" id="sleepSettingsBtn" title="إعدادات وقت النوم">
+                <i class="fas fa-bed"></i>
+                <span class="sleep-active-indicator" id="sleepIndicator"></span>
+            </button>
+            <button class="theme-btn" id="themeToggle"><i class="fas fa-moon"></i></button>
+        </div>
+    </div>
+
+    <div class="alert-bar" id="alertBar">
+        <i class="fas fa-bell"></i> <span id="alertText"></span>
+    </div>
+
+    <div class="mini-calendar">
+        <div class="month-row">
+            <button class="nav-icon" id="prevMonthBtn"><i class="fas fa-chevron-right"></i></button>
+            <span class="month-title" id="monthTitle"></span>
+            <button class="nav-icon" id="nextMonthBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <div class="weekdays-mini">
+            <span>ح</span><span>ن</span><span>ث</span><span>ر</span><span>خ</span><span>ج</span><span>س</span>
+        </div>
+        <div class="days-mini" id="miniDaysGrid"></div>
+    </div>
+
+    <div class="list-container">
+        <div class="list-header">
+            <span><i class="far fa-list-alt"></i> أيام الشهر</span>
+            <span id="listMonthLabel" style="font-size:0.75rem;color:var(--text-secondary);"></span>
+        </div>
+        <div class="scrollable-list" id="daysList"></div>
+    </div>
+</div>
+
+<!-- مودال إضافة/تعديل ملاحظة -->
+<div class="modal-overlay" id="noteModal">
+    <div class="modal">
+        <h4 id="modalTitle">إضافة ملاحظة</h4>
+        <div id="modalDateLabel" style="font-weight:600;"></div>
+        <input type="time" id="noteTimeInput" value="12:00">
+
+        <!-- خيار التكرار -->
+        <div class="repeat-toggle-row">
+            <label class="toggle-switch">
+                <input type="checkbox" id="repeatToggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <label for="repeatToggle" style="flex:1;">🔁 تنبيه متكرر</label>
+        </div>
+        <div class="repeat-options" id="repeatOptions" style="display:none;">
+            <label>عدد دقائق التكرار:</label>
+            <input type="number" id="repeatIntervalInput" value="30" min="1" max="1440" placeholder="كل X دقيقة">
+            <label>أيام التكرار:</label>
+            <div class="weekday-selector" id="weekdaySelector">
+                <span class="weekday-chip" data-day="0">أحد</span>
+                <span class="weekday-chip" data-day="1">إثنين</span>
+                <span class="weekday-chip" data-day="2">ثلاثاء</span>
+                <span class="weekday-chip" data-day="3">أربعاء</span>
+                <span class="weekday-chip" data-day="4">خميس</span>
+                <span class="weekday-chip" data-day="5">جمعة</span>
+                <span class="weekday-chip" data-day="6">سبت</span>
+            </div>
+        </div>
+
+        <textarea id="noteTextInput" placeholder="تفاصيل الملاحظة..."></textarea>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-tone" id="selectToneBtn"><i class="fas fa-music"></i> اختر نغمة</button>
+            <span class="tone-name" id="selectedToneName">النغمة الافتراضية</span>
+            <button type="button" class="btn btn-cancel" id="clearToneBtn" style="font-size:0.7rem;padding:4px 8px;display:none;"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="cancelNoteBtn">إلغاء</button>
+            <button class="btn btn-save" id="saveNoteBtn">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال إدارة اليوم -->
+<div class="modal-overlay" id="dayManageModal">
+    <div class="modal">
+        <h4><i class="fas fa-pen"></i> إدارة مهام اليوم</h4>
+        <div id="dayManageDateLabel" style="font-weight:600;color:var(--primary);"></div>
+        <hr>
+        <div class="day-notes-list" id="dayNotesListContainer">
+            <div class="no-notes-msg">لا توجد ملاحظات لهذا اليوم</div>
+        </div>
+        <hr>
+        <div class="modal-actions" style="justify-content:space-between;">
+            <button class="btn btn-save" id="addNewNoteFromManageBtn"><i class="fas fa-plus"></i> إضافة ملاحظة</button>
+            <button class="btn btn-cancel" id="closeDayManageBtn">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال إعدادات وقت النوم -->
+<div class="modal-overlay" id="sleepSettingsModal">
+    <div class="modal">
+        <h4><i class="fas fa-bed"></i> إعدادات وقت النوم 🌙</h4>
+        <p style="font-size:0.75rem;color:var(--text-secondary);">خلال هذه الفترة، لن يتم تشغيل أي تنبيهات صوتية.</p>
+        <label>بداية وقت النوم:</label>
+        <input type="time" id="sleepStartInput" value="23:00">
+        <label>نهاية وقت النوم (الاستيقاظ):</label>
+        <input type="time" id="sleepEndInput" value="07:00">
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="closeSleepSettingsBtn">إلغاء</button>
+            <button class="btn btn-save" id="saveSleepSettingsBtn">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="ringtoneFileInput" accept="audio/*">
+
+<script>
+(() => {
+    const today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+    let selectedDate = new Date(today);
+    let notesStore = {};
+    let editingNoteIndex = null;
+    let tempToneFile = null;
+    let currentManageDate = null;
+    let audioCtx = null;
+
+    // إعدادات النوم الافتراضية
+    let sleepSettings = {
+        enabled: true,
+        start: '23:00',
+        end: '07:00'
+    };
+
+    // تحميل إعدادات النوم
+    const savedSleep = localStorage.getItem('sleepSettings_v2');
+    if (savedSleep) {
+        try { sleepSettings = JSON.parse(savedSleep); } catch(e) {}
+    }
+
+    // عناصر DOM
+    const monthTitle = document.getElementById('monthTitle');
+    const miniGrid = document.getElementById('miniDaysGrid');
+    const daysList = document.getElementById('daysList');
+    const listMonthLabel = document.getElementById('listMonthLabel');
+    const noteModalOverlay = document.getElementById('noteModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDateLabel = document.getElementById('modalDateLabel');
+    const noteTimeInput = document.getElementById('noteTimeInput');
+    const noteTextInput = document.getElementById('noteTextInput');
+    const themeToggle = document.getElementById('themeToggle');
+    const alertBar = document.getElementById('alertBar');
+    const alertText = document.getElementById('alertText');
+    const selectToneBtn = document.getElementById('selectToneBtn');
+    const selectedToneName = document.getElementById('selectedToneName');
+    const clearToneBtn = document.getElementById('clearToneBtn');
+    const ringtoneFileInput = document.getElementById('ringtoneFileInput');
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+    const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+    const repeatToggle = document.getElementById('repeatToggle');
+    const repeatOptions = document.getElementById('repeatOptions');
+    const repeatIntervalInput = document.getElementById('repeatIntervalInput');
+    const weekdaySelector = document.getElementById('weekdaySelector');
+    const dayManageModal = document.getElementById('dayManageModal');
+    const dayManageDateLabel = document.getElementById('dayManageDateLabel');
+    const dayNotesListContainer = document.getElementById('dayNotesListContainer');
+    const closeDayManageBtn = document.getElementById('closeDayManageBtn');
+    const addNewNoteFromManageBtn = document.getElementById('addNewNoteFromManageBtn');
+    const sleepSettingsModal = document.getElementById('sleepSettingsModal');
+    const sleepStartInput = document.getElementById('sleepStartInput');
+    const sleepEndInput = document.getElementById('sleepEndInput');
+    const sleepSettingsBtn = document.getElementById('sleepSettingsBtn');
+    const sleepIndicator = document.getElementById('sleepIndicator');
+    const closeSleepSettingsBtn = document.getElementById('closeSleepSettingsBtn');
+    const saveSleepSettingsBtn = document.getElementById('saveSleepSettingsBtn');
+
+    // ============ IndexedDB ============
+    const DB_NAME = 'TaskTonesDB_v2';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'tones';
+    let db = null;
+
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+            };
+            request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    function saveToneToDB(id, file) {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            store.put(file, id);
+            tx.oncomplete = () => resolve();
+            tx.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    function getToneFromDB(id) {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const store = tx.objectStore(STORE_NAME);
+            const request = store.get(id);
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    function deleteToneFromDB(id) {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            store.delete(id);
+            tx.oncomplete = () => resolve();
+            tx.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    // ============ تحميل البيانات ============
+    const stored = localStorage.getItem('taskCalendar_v11');
+    if (stored) { try { notesStore = JSON.parse(stored); } catch(e) { notesStore = {}; } }
+
+    const formatKey = (y, m, d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const getKey = (date) => formatKey(date.getFullYear(), date.getMonth(), date.getDate());
+    const save = () => localStorage.setItem('taskCalendar_v11', JSON.stringify(notesStore));
+    const getNotes = (date) => notesStore[getKey(date)] || [];
+
+    // ============ نظام تشغيل النغمة ============
+    async function getAudioContext() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        return audioCtx;
+    }
+
+    function playDefaultTone() {
+        if (isInSleepTime()) return; // لا تشغل خلال وقت النوم
+        getAudioContext().then(ctx => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.4);
+        }).catch(e => console.warn('تعذر تشغيل النغمة', e));
+    }
+
+    async function playToneFromFile(file) {
+        if (isInSleepTime()) return false;
+        try {
+            const ctx = await getAudioContext();
+            const arrayBuffer = await file.arrayBuffer();
+            const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+            const source = ctx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(ctx.destination);
+            source.start(0);
+            return true;
+        } catch(e) { return false; }
+    }
+
+    async function playTone(toneId) {
+        if (isInSleepTime()) return;
+        if (!toneId) { playDefaultTone(); return; }
+        try {
+            const file = await getToneFromDB(toneId);
+            if (file) { const ok = await playToneFromFile(file); if (!ok) playDefaultTone(); }
+            else playDefaultTone();
+        } catch(e) { playDefaultTone(); }
+    }
+
+    // ============ وقت النوم ============
+    function isInSleepTime() {
+        if (!sleepSettings.enabled) return false;
+        const now = new Date();
+        const current = now.getHours() * 60 + now.getMinutes();
+        const [sh, sm] = sleepSettings.start.split(':').map(Number);
+        const [eh, em] = sleepSettings.end.split(':').map(Number);
+        const start = sh * 60 + sm;
+        const end = eh * 60 + em;
+        if (start <= end) {
+            return current >= start && current < end;
+        } else {
+            // فترة تمتد عبر منتصف الليل (مثلاً 23:00 إلى 07:00)
+            return current >= start || current < end;
+        }
+    }
+
+    function updateSleepIndicator() {
+        if (isInSleepTime()) {
+            sleepIndicator.classList.add('show');
+        } else {
+            sleepIndicator.classList.remove('show');
+        }
+    }
+
+    // ============ التنبيهات ============
+    let alertTimeoutId = null;
+    let repeatIntervals = {}; // لتتبع التكرارات النشطة
+
+    function showAlertNotification(noteText, timeStr) {
+        alertText.textContent = `تنبيه: "${noteText}" - ${timeStr}`;
+        alertBar.classList.add('show');
+        setTimeout(() => alertBar.classList.remove('show'), 6000);
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                new Notification('⏰ تذكير مهمة', {
+                    body: `${noteText} - ${timeStr}`,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+                    tag: 'task-alert',
+                    requireInteraction: true
+                });
+            } catch(e) {}
+        }
+    }
+
+    // دالة لتشغيل تنبيه محدد
+    async function triggerSingleAlert(note, noteKey, noteIdx) {
+        if (note.alerted || note.muted) return;
+        note.alerted = true;
+        save();
+        await playTone(note.toneId || null);
+        showAlertNotification(note.text, note.time);
+        renderAll();
+    }
+
+    // التحقق من التكرارات: إنشاء تواريخ وهمية للتنبيهات المتكررة
+    function getRepeatAlertsForNow() {
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        const todayDay = now.getDay(); // 0=الأحد
+        const alerts = [];
+
+        for (const [key, notes] of Object.entries(notesStore)) {
+            notes.forEach((note, idx) => {
+                if (note.alerted || note.muted) return;
+                if (!note.repeatType || note.repeatType === 'once') return;
+
+                // التحقق من اليوم
+                if (note.repeatDays && note.repeatDays.length > 0) {
+                    if (!note.repeatDays.includes(todayDay)) return;
+                }
+
+                // وقت البداية
+                const [h, m] = note.time.split(':').map(Number);
+                const startMinutes = h * 60 + m;
+
+                if (currentTime < startMinutes) return; // لم يبدأ بعد
+
+                // حساب الفرق
+                const diff = currentTime - startMinutes;
+                const interval = note.repeatInterval || 30;
+
+                if (diff >= 0 && diff % interval <= 1) { // خلال دقيقة من وقت التنبيه
+                    // تجنب التكرار المفرط: نتحقق من آخر مرة تم التنبيه فيها
+                    const lastAlertKey = `lastAlert_${key}_${idx}`;
+                    const lastAlert = sessionStorage.getItem(lastAlertKey);
+                    const nowStr = `${now.toDateString()}_${Math.floor(currentTime / interval)}`;
+                    if (lastAlert === nowStr) return; // تم التنبيه بالفعل في هذه الدورة
+
+                    sessionStorage.setItem(lastAlertKey, nowStr);
+                    alerts.push({ key, idx, note, timeStr: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` });
+                }
+            });
+        }
+        return alerts;
+    }
+
+    async function triggerAlerts() {
+        const now = new Date();
+        const todayKey = getKey(now);
+        const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        let anyTriggered = false;
+
+        // التنبيهات لمرة واحدة
+        for (const [key, notes] of Object.entries(notesStore)) {
+            const [y, m, d] = key.split('-').map(Number);
+            const noteDate = new Date(y, m-1, d);
+            const noteDateKey = getKey(noteDate);
+
+            for (const note of notes) {
+                if (note.alerted || note.muted) continue;
+                if (note.repeatType && note.repeatType !== 'once') continue; // التكرارات تعالج بشكل منفصل
+                const isPastDate = noteDateKey < todayKey;
+                const isTimeReached = noteDateKey === todayKey && note.time <= currentTime;
+                if (isPastDate || isTimeReached) {
+                    note.alerted = true;
+                    save();
+                    await playTone(note.toneId || null);
+                    showAlertNotification(note.text, note.time);
+                    anyTriggered = true;
+                }
+            }
+        }
+
+        // التنبيهات المتكررة
+        const repeatAlerts = getRepeatAlertsForNow();
+        for (const alert of repeatAlerts) {
+            await playTone(alert.note.toneId || null);
+            showAlertNotification(alert.note.text, alert.timeStr);
+            anyTriggered = true;
+        }
+
+        if (anyTriggered) renderAll();
+    }
+
+    function getNextAlertTime() {
+        const now = new Date();
+        let nextTime = null;
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        for (const [key, notes] of Object.entries(notesStore)) {
+            const [y, m, d] = key.split('-').map(Number);
+            const noteDate = new Date(y, m-1, d);
+
+            for (const note of notes) {
+                if (note.alerted || note.muted) continue;
+                const [h, min] = note.time.split(':').map(Number);
+                let alertDateTime = new Date(noteDate);
+                alertDateTime.setHours(h, min, 0, 0);
+
+                if (note.repeatType && note.repeatType !== 'once') {
+                    // للتكرار: نبحث عن أقرب وقت تكرار اليوم
+                    const startMin = h * 60 + min;
+                    const interval = note.repeatInterval || 30;
+                    const todayDay = now.getDay();
+                    if (note.repeatDays && note.repeatDays.length > 0 && !note.repeatDays.includes(todayDay)) {
+                        // ابحث عن اليوم التالي المتاح
+                        for (let i = 1; i <= 7; i++) {
+                            const nextDay = (todayDay + i) % 7;
+                            if (note.repeatDays.includes(nextDay)) {
+                                const candidate = new Date(now);
+                                candidate.setDate(candidate.getDate() + i);
+                                candidate.setHours(h, min, 0, 0);
+                                if (!nextTime || candidate < nextTime) nextTime = candidate;
+                                break;
+                            }
+                        }
+                        continue;
+                    }
+                    if (currentMinutes < startMin) {
+                        alertDateTime = new Date(now);
+                        alertDateTime.setHours(h, min, 0, 0);
+                    } else {
+                        const nextInterval = startMin + Math.ceil((currentMinutes - startMin + 1) / interval) * interval;
+                        alertDateTime = new Date(now);
+                        alertDateTime.setHours(Math.floor(nextInterval / 60), nextInterval % 60, 0, 0);
+                    }
+                }
+
+                if (alertDateTime > now && (!nextTime || alertDateTime < nextTime)) {
+                    nextTime = alertDateTime;
+                }
+            }
+        }
+        return nextTime;
+    }
+
+    function scheduleNextAlert() {
+        if (alertTimeoutId) clearTimeout(alertTimeoutId);
+        updateSleepIndicator();
+        triggerAlerts();
+        const next = getNextAlertTime();
+        if (next) {
+            const ms = next.getTime() - Date.now();
+            alertTimeoutId = setTimeout(() => {
+                triggerAlerts();
+                scheduleNextAlert();
+            }, Math.max(ms, 30000)); // تحقق كل 30 ثانية على الأقل
+        } else {
+            // إعادة التحقق كل دقيقة
+            alertTimeoutId = setTimeout(() => scheduleNextAlert(), 60000);
+        }
+    }
+
+    // ============ عرض الواجهة ============
+    function hasUnalertedNotes(date) {
+        return getNotes(date).some(n => !n.alerted && !n.muted);
+    }
+
+    function renderMiniCalendar() {
+        const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        monthTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        listMonthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+        let html = '';
+        for (let i=0; i<firstDay; i++) html += '<div class="day-mini empty"></div>';
+        for (let d=1; d<=daysInMonth; d++) {
+            const date = new Date(currentYear, currentMonth, d);
+            const isToday = date.toDateString() === today.toDateString();
+            const isSel = selectedDate && date.toDateString() === selectedDate.toDateString();
+            const hasAlert = hasUnalertedNotes(date);
+            let cls = 'day-mini';
+            if (isToday) cls += ' today';
+            if (isSel) cls += ' selected';
+            if (hasAlert) cls += ' has-alert';
+            html += `<div class="${cls}" data-day="${d}">${d}</div>`;
+        }
+        miniGrid.innerHTML = html;
+        document.querySelectorAll('.day-mini[data-day]').forEach(cell => {
+            cell.addEventListener('click', function() {
+                selectDay(new Date(currentYear, currentMonth, +this.dataset.day));
+            });
+        });
+    }
+
+    function renderDaysList() {
+        const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+        const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        let html = '';
+        for (let d=1; d<=daysInMonth; d++) {
+            const date = new Date(currentYear, currentMonth, d);
+            const dayName = dayNames[date.getDay()];
+            const isToday = date.toDateString() === today.toDateString();
+            const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+            const notes = getNotes(date);
+            let pills = notes.map((n, idx) => {
+                let cls = 'note-pill';
+                if (n.alerted && !n.muted) cls += ' alerted';
+                if (n.muted) cls += ' muted';
+                if (n.toneId) cls += ' has-custom-tone';
+                if (n.repeatType && n.repeatType !== 'once') cls += ' repeating';
+                const bellIcon = n.muted ? '<i class="fas fa-bell-slash bell-icon mute-toggle" title="إلغاء الكتم"></i>' :
+                    (n.alerted ? '<i class="fas fa-redo bell-icon mute-toggle" title="إعادة التنبيه"></i>' :
+                    '<i class="fas fa-bell bell-icon mute-toggle" title="كتم التنبيه"></i>');
+                const repeatIcon = (n.repeatType && n.repeatType !== 'once') ? '🔁' : '';
+                return `<span class="${cls}" data-day="${d}" data-idx="${idx}">
+                    ${bellIcon} ${repeatIcon}
+                    <i class="fas fa-edit edit-icon edit-toggle" title="تعديل"></i>
+                    <i class="far fa-clock"></i> ${n.time} ${escapeHtml(n.text)}
+                </span>`;
+            }).join('');
+            if (!pills) pills = '<span class="empty-note">لا توجد ملاحظات</span>';
+            html += `
+            <div class="day-row ${isToday?'today-row':''} ${isSelected?'selected-row':''}" data-day="${d}">
+                <div class="day-badge">${d} <span style="font-size:0.65rem;opacity:0.8;">${dayName}</span></div>
+                <div class="notes-inline">${pills}</div>
+                <button class="day-edit-pen" data-day="${d}" title="إدارة مهام اليوم"><i class="fas fa-pen"></i></button>
+                <button class="add-day-btn" data-day="${d}" title="إضافة سريعة"><i class="fas fa-plus"></i></button>
+            </div>`;
+        }
+        daysList.innerHTML = html;
+        attachListEvents();
+    }
+
+    function attachListEvents() {
+        document.querySelectorAll('.add-day-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); openAddModal(new Date(currentYear, currentMonth, +btn.dataset.day)); });
+        });
+        document.querySelectorAll('.day-edit-pen').forEach(pen => {
+            pen.addEventListener('click', (e) => { e.stopPropagation(); openDayManageModal(new Date(currentYear, currentMonth, +pen.dataset.day)); });
+        });
+        document.querySelectorAll('.day-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('.note-pill') || e.target.closest('.bell-icon') || e.target.closest('.edit-icon') || e.target.closest('.day-edit-pen')) return;
+                selectDay(new Date(currentYear, currentMonth, +row.dataset.day));
+            });
+        });
+        document.querySelectorAll('.bell-icon.mute-toggle').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const pill = this.closest('.note-pill');
+                const day = +pill.dataset.day; const idx = +pill.dataset.idx;
+                const key = getKey(new Date(currentYear, currentMonth, day));
+                if (notesStore[key] && notesStore[key][idx]) {
+                    const note = notesStore[key][idx];
+                    if (note.muted) { note.muted = false; note.alerted = false; }
+                    else if (note.alerted) { note.alerted = false; }
+                    else { note.muted = true; }
+                    save(); renderAll(); scheduleNextAlert();
+                }
+            });
+        });
+        document.querySelectorAll('.edit-icon.edit-toggle').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const pill = this.closest('.note-pill');
+                openEditModal(new Date(currentYear, currentMonth, +pill.dataset.day), +pill.dataset.idx);
+            });
+        });
+    }
+
+    function escapeHtml(text) {
+        return String(text).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]);
+    }
+
+    function selectDay(date) {
+        selectedDate = date;
+        renderMiniCalendar();
+        renderDaysList();
+        setTimeout(() => {
+            const row = document.querySelector('.day-row.selected-row');
+            if (row) row.scrollIntoView({behavior:'smooth',block:'center'});
+        }, 50);
+    }
+
+    // ============ مودال إدارة اليوم ============
+    function openDayManageModal(date) {
+        currentManageDate = date;
+        dayManageDateLabel.textContent = `${date.getDate()} / ${date.getMonth()+1} / ${date.getFullYear()}`;
+        renderDayNotesInManageModal();
+        dayManageModal.style.display = 'flex';
+    }
+
+    function renderDayNotesInManageModal() {
+        if (!currentManageDate) return;
+        const notes = getNotes(currentManageDate);
+        if (notes.length === 0) {
+            dayNotesListContainer.innerHTML = '<div class="no-notes-msg">لا توجد ملاحظات لهذا اليوم</div>';
+            return;
+        }
+        let html = '';
+        notes.forEach((note, idx) => {
+            const repeatInfo = (note.repeatType && note.repeatType !== 'once')
+                ? `<span class="day-note-meta">🔁 كل ${note.repeatInterval} دقيقة | ${getRepeatDaysText(note.repeatDays)}</span>`
+                : '';
+            html += `
+            <div class="day-note-item">
+                <div class="day-note-info">
+                    <span class="day-note-time"><i class="far fa-clock"></i> ${note.time}</span>
+                    <span class="day-note-text">${escapeHtml(note.text)}</span>
+                    ${repeatInfo}
+                    ${note.toneId ? '<span style="font-size:0.6rem;color:var(--custom-tone-color);"><i class="fas fa-music"></i> نغمة مخصصة</span>' : ''}
+                </div>
+                <div class="day-note-actions">
+                    <button class="icon-btn edit-btn" data-idx="${idx}" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn delete-btn" data-idx="${idx}" title="حذف"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>`;
+        });
+        dayNotesListContainer.innerHTML = html;
+        dayNotesListContainer.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = +btn.dataset.idx;
+                dayManageModal.style.display = 'none';
+                openEditModal(currentManageDate, idx);
+                const check = setInterval(() => {
+                    if (noteModalOverlay.style.display === 'none' || noteModalOverlay.style.display === '') {
+                        clearInterval(check);
+                        if (currentManageDate) dayManageModal.style.display = 'flex';
+                        renderDayNotesInManageModal();
+                        renderAll(); scheduleNextAlert();
+                    }
+                }, 200);
+            });
+        });
+        dayNotesListContainer.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) {
+                    deleteNote(currentManageDate, +btn.dataset.idx);
+                    renderDayNotesInManageModal();
+                    renderAll(); scheduleNextAlert();
+                }
+            });
+        });
+    }
+
+    function getRepeatDaysText(days) {
+        if (!days || days.length === 7) return 'يومياً';
+        const names = ['أحد','إثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+        return days.map(d => names[d]).join('، ');
+    }
+
+    function deleteNote(date, idx) {
+        const key = getKey(date);
+        if (notesStore[key] && notesStore[key][idx] !== undefined) {
+            const note = notesStore[key][idx];
+            if (note.toneId) deleteToneFromDB(note.toneId).catch(()=>{});
+            notesStore[key].splice(idx, 1);
+            if (notesStore[key].length === 0) delete notesStore[key];
+            save();
+        }
+    }
+
+    closeDayManageBtn.addEventListener('click', () => { dayManageModal.style.display = 'none'; currentManageDate = null; });
+    dayManageModal.addEventListener('click', (e) => { if (e.target === dayManageModal) { dayManageModal.style.display = 'none'; currentManageDate = null; } });
+    addNewNoteFromManageBtn.addEventListener('click', () => {
+        if (!currentManageDate) return;
+        dayManageModal.style.display = 'none';
+        openAddModal(currentManageDate);
+        const check = setInterval(() => {
+            if (noteModalOverlay.style.display === 'none' || noteModalOverlay.style.display === '') {
+                clearInterval(check);
+                if (currentManageDate) dayManageModal.style.display = 'flex';
+                renderDayNotesInManageModal();
+                renderAll(); scheduleNextAlert();
+            }
+        }, 200);
+    });
+
+    // ============ مودال إضافة/تعديل ملاحظة ============
+    let selectedWeekdays = [0,1,2,3,4,5,6]; // افتراضي كل الأيام
+
+    function resetToneSelection() {
+        tempToneFile = null;
+        selectedToneName.textContent = 'النغمة الافتراضية';
+        clearToneBtn.style.display = 'none';
+    }
+
+    function initWeekdaySelector() {
+        document.querySelectorAll('#weekdaySelector .weekday-chip').forEach(chip => {
+            chip.classList.toggle('selected', selectedWeekdays.includes(+chip.dataset.day));
+            chip.onclick = () => {
+                const day = +chip.dataset.day;
+                if (selectedWeekdays.includes(day)) {
+                    if (selectedWeekdays.length > 1) selectedWeekdays = selectedWeekdays.filter(d => d !== day);
+                } else {
+                    selectedWeekdays = [...selectedWeekdays, day].sort();
+                }
+                initWeekdaySelector();
+            };
+        });
+    }
+
+    repeatToggle.addEventListener('change', () => {
+        repeatOptions.style.display = repeatToggle.checked ? 'flex' : 'none';
+        if (repeatToggle.checked) initWeekdaySelector();
+    });
+
+    function openAddModal(date) {
+        editingNoteIndex = null;
+        selectedDate = date;
+        modalTitle.textContent = 'إضافة ملاحظة';
+        modalDateLabel.textContent = `${date.getDate()} / ${date.getMonth()+1} / ${date.getFullYear()}`;
+        const now = new Date();
+        noteTimeInput.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        noteTextInput.value = '';
+        repeatToggle.checked = false;
+        repeatOptions.style.display = 'none';
+        repeatIntervalInput.value = 30;
+        selectedWeekdays = [0,1,2,3,4,5,6];
+        initWeekdaySelector();
+        resetToneSelection();
+        noteModalOverlay.style.display = 'flex';
+        noteTextInput.focus();
+    }
+
+    function openEditModal(date, noteIndex) {
+        const key = getKey(date);
+        const note = notesStore[key][noteIndex];
+        editingNoteIndex = noteIndex;
+        selectedDate = date;
+        modalTitle.textContent = 'تعديل الملاحظة';
+        modalDateLabel.textContent = `${date.getDate()} / ${date.getMonth()+1} / ${date.getFullYear()}`;
+        noteTimeInput.value = note.time;
+        noteTextInput.value = note.text;
+
+        if (note.repeatType && note.repeatType !== 'once') {
+            repeatToggle.checked = true;
+            repeatOptions.style.display = 'flex';
+            repeatIntervalInput.value = note.repeatInterval || 30;
+            selectedWeekdays = note.repeatDays || [0,1,2,3,4,5,6];
+        } else {
+            repeatToggle.checked = false;
+            repeatOptions.style.display = 'none';
+            repeatIntervalInput.value = 30;
+            selectedWeekdays = [0,1,2,3,4,5,6];
+        }
+        initWeekdaySelector();
+
+        if (note.toneId) {
+            selectedToneName.textContent = 'نغمة مخصصة (محفوظة)';
+            clearToneBtn.style.display = 'inline-block';
+            tempToneFile = null;
+        } else {
+            resetToneSelection();
+        }
+        noteModalOverlay.style.display = 'flex';
+    }
+
+    function closeNoteModal() {
+        noteModalOverlay.style.display = 'none';
+        editingNoteIndex = null;
+        tempToneFile = null;
+    }
+
+    async function saveNoteFromModal() {
+        if (!selectedDate) return;
+        const time = noteTimeInput.value || '12:00';
+        const text = noteTextInput.value.trim();
+        if (!text) { alert('الرجاء كتابة ملاحظة'); return; }
+
+        const key = getKey(selectedDate);
+        if (!notesStore[key]) notesStore[key] = [];
+
+        const existingNote = editingNoteIndex !== null ? notesStore[key][editingNoteIndex] : null;
+        let toneId = existingNote ? existingNote.toneId || null : null;
+
+        if (tempToneFile) {
+            if (existingNote && existingNote.toneId) await deleteToneFromDB(existingNote.toneId).catch(()=>{});
+            toneId = 'tone_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+            try { await saveToneToDB(toneId, tempToneFile); } catch(e) { alert('فشل حفظ النغمة'); toneId = null; }
+        }
+
+        const noteData = {
+            time,
+            text,
+            alerted: existingNote ? existingNote.alerted : false,
+            muted: existingNote ? existingNote.muted : false,
+            toneId: toneId || null,
+            repeatType: repeatToggle.checked ? 'interval' : 'once',
+            repeatInterval: repeatToggle.checked ? (parseInt(repeatIntervalInput.value) || 30) : null,
+            repeatDays: repeatToggle.checked ? [...selectedWeekdays] : null
+        };
+
+        if (editingNoteIndex !== null) {
+            notesStore[key][editingNoteIndex] = noteData;
+        } else {
+            notesStore[key].push(noteData);
+        }
+        notesStore[key].sort((a,b) => a.time.localeCompare(b.time));
+        save();
+        closeNoteModal();
+        renderAll();
+        scheduleNextAlert();
+        if (currentManageDate && dayManageModal.style.display === 'flex') {
+            renderDayNotesInManageModal();
+        }
+    }
+
+    selectToneBtn.addEventListener('click', () => ringtoneFileInput.click());
+    ringtoneFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('audio/')) { alert('الرجاء اختيار ملف صوتي'); return; }
+        tempToneFile = file;
+        selectedToneName.textContent = file.name;
+        clearToneBtn.style.display = 'inline-block';
+    });
+    clearToneBtn.addEventListener('click', () => { tempToneFile = null; selectedToneName.textContent = 'النغمة الافتراضية'; clearToneBtn.style.display = 'none'; });
+    saveNoteBtn.addEventListener('click', saveNoteFromModal);
+    cancelNoteBtn.addEventListener('click', closeNoteModal);
+    noteModalOverlay.addEventListener('click', (e) => { if (e.target === noteModalOverlay) closeNoteModal(); });
+    noteTextInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveNoteFromModal(); } });
+
+    // ============ إعدادات النوم ============
+    sleepSettingsBtn.addEventListener('click', () => {
+        sleepStartInput.value = sleepSettings.start;
+        sleepEndInput.value = sleepSettings.end;
+        sleepSettingsModal.style.display = 'flex';
+    });
+    closeSleepSettingsBtn.addEventListener('click', () => { sleepSettingsModal.style.display = 'none'; });
+    sleepSettingsModal.addEventListener('click', (e) => { if (e.target === sleepSettingsModal) sleepSettingsModal.style.display = 'none'; });
+    saveSleepSettingsBtn.addEventListener('click', () => {
+        sleepSettings.start = sleepStartInput.value || '23:00';
+        sleepSettings.end = sleepEndInput.value || '07:00';
+        localStorage.setItem('sleepSettings_v2', JSON.stringify(sleepSettings));
+        sleepSettingsModal.style.display = 'none';
+        updateSleepIndicator();
+        scheduleNextAlert();
+    });
+
+    // ============ تغيير الشهر ============
+    function changeMonth(delta) {
+        currentMonth += delta;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+        if (selectedDate && (selectedDate.getMonth() !== currentMonth || selectedDate.getFullYear() !== currentYear)) {
+            selectedDate = new Date(currentYear, currentMonth, Math.min(selectedDate.getDate(), daysInMonth));
+        }
+        renderAll();
+    }
+    document.getElementById('prevMonthBtn').addEventListener('click', () => changeMonth(-1));
+    document.getElementById('nextMonthBtn').addEventListener('click', () => changeMonth(1));
+
+    // ============ الوضع الليلي ============
+    function initTheme() {
+        const isDark = localStorage.getItem('theme') === 'dark';
+        document.body.classList.toggle('dark-mode', isDark);
+        themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+
+    function renderAll() { renderMiniCalendar(); renderDaysList(); }
+
+    // ============ بدء التشغيل ============
+    async function init() {
+        try { await openDB(); } catch(e) { console.warn('فشل فتح IndexedDB'); }
+        initTheme();
+        updateSleepIndicator();
+        if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+        renderAll();
+        scheduleNextAlert();
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleNextAlert(); });
+        // تحديث مؤشر النوم كل دقيقة
+        setInterval(updateSleepIndicator, 60000);
+    }
+    init();
+})();
+</script>
+</body>
+</html>
